@@ -37,6 +37,9 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
+# Candidatos vetoriais no modo híbrido (o RRF precisa de mais que top_k)
+HYBRID_K_VIZINHOS = 50
+
 # ============================================================================
 # CARREGAMENTO DO .env
 # ============================================================================
@@ -255,22 +258,39 @@ class AzureSearchClient:
             log.error("❌ Erro ao indexar: %s", str(e))
             return False
 
-    def buscar(self, embedding: list[float], top_k: int = 2) -> list[dict]:
+    def buscar(
+        self,
+        embedding: list[float],
+        top_k: int = 3,
+        texto: Optional[str] = None,
+    ) -> list[dict]:
         """
-        Busca vetorial por similaridade de cosseno (HNSW).
-        search_text=None: busca puramente vetorial.
+        Busca no índice. Dois modos:
+
+        - Vetorial pura (texto=None): similaridade de cosseno (HNSW).
+        - Híbrida (texto informado): BM25 (palavras-chave) + vetorial,
+          combinadas pelo Azure via RRF (Reciprocal Rank Fusion).
+
+        Por que híbrida? A vetorial acerta paráfrases, mas erra termos
+        exatos (siglas, nomes de escalas). A BM25 é o oposto. E só a parte
+        textual aplica synonym maps (ex.: "demência" → "déficit cognitivo").
+
+        No modo híbrido, a parte vetorial busca HYBRID_K_VIZINHOS candidatos
+        para que o RRF tenha material para fundir; `top` corta no final.
         """
         try:
+            k_vetorial = top_k if texto is None else max(top_k, HYBRID_K_VIZINHOS)
             vector_query = VectorizedQuery(
                 vector=embedding,
-                k_nearest_neighbors=top_k,
+                k_nearest_neighbors=k_vetorial,
                 fields="embedding"
             )
 
             results = self._client.search(
-                search_text=None,
+                search_text=texto,
                 vector_queries=[vector_query],
-                select=["id", "titulo", "conteudo", "categoria"]
+                select=["id", "titulo", "conteudo", "categoria"],
+                top=top_k,
             )
 
             documentos = []

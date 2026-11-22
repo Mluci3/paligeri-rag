@@ -1,0 +1,12 @@
+# Sinônimos clínicos — formato Solr (Azure AI Search synonym map)
+# Uma regra por linha. Termos separados por vírgula são equivalentes.
+# Linhas iniciadas com # são ignoradas.
+# Revisão clínica recomendada antes de usar em produção.
+
+demência, déficit cognitivo, deterioração cognitiva, comprometimento cognitivo
+lesão por pressão, úlcera por pressão, escara
+dispneia, falta de ar
+deprescrição, desprescrição
+final da vida, fim de vida, terminalidade
+sedação paliativa, sedação terminal
+más notícias, notícias difíceis

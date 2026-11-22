@@ -43,9 +43,15 @@ class RAGPipeline:
     Depende exclusivamente das abstrações de config.py.
     """
 
-    def __init__(self, openai: AzureOpenAIClient, search: AzureSearchClient):
+    def __init__(
+        self,
+        openai: AzureOpenAIClient,
+        search: AzureSearchClient,
+        hibrida: bool = True,
+    ):
         self._openai = openai
         self._search = search
+        self._hibrida = hibrida
 
     def _montar_contexto(self, documentos: list[dict]) -> str:
         """
@@ -57,27 +63,43 @@ class RAGPipeline:
             for i, doc in enumerate(documentos)
         ])
 
-    def responder(self, query: str, top_k: int = 2) -> Optional[str]:
+    def recuperar(self, query: str, top_k: int = 3) -> Optional[list[dict]]:
         """
-        Pipeline completo: query → embedding → busca → resposta.
+        Etapa de retrieval isolada (query → embedding → busca).
 
-        Args:
-            query: Pergunta do usuário
-            top_k: Número de documentos a recuperar (padrão: 2)
-
-        Returns:
-            Resposta fundamentada nos documentos ou None em caso de erro.
+        Separada de responder() para que a avaliação (eval.py) possa medir
+        a qualidade da busca sem pagar por chamadas ao GPT.
+        Retorna None se o embedding falhar.
         """
-        # Passo 1: Embedding da query
         log.info("🔄 Gerando embedding da query...")
         embedding = self._openai.gerar_embedding(query)
         if embedding is None:
             log.error("❌ Falha ao gerar embedding da query.")
             return None
 
-        # Passo 2: Busca vetorial
-        log.info("🔍 Buscando documentos relevantes...")
-        documentos = self._search.buscar(embedding, top_k=top_k)
+        modo = "híbrida" if self._hibrida else "vetorial"
+        log.info("🔍 Buscando documentos relevantes (busca %s)...", modo)
+        return self._search.buscar(
+            embedding,
+            top_k=top_k,
+            texto=query if self._hibrida else None,
+        )
+
+    def responder(self, query: str, top_k: int = 3) -> Optional[str]:
+        """
+        Pipeline completo: query → embedding → busca → resposta.
+
+        Args:
+            query: Pergunta do usuário
+            top_k: Número de documentos a recuperar (padrão: 3)
+
+        Returns:
+            Resposta fundamentada nos documentos ou None em caso de erro.
+        """
+        # Passos 1 e 2: embedding + busca
+        documentos = self.recuperar(query, top_k=top_k)
+        if documentos is None:
+            return None
 
         if not documentos:
             log.warning("⚠️ Nenhum documento relevante encontrado.")
