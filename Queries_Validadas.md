@@ -43,8 +43,9 @@
 
 ## Próximos Passos (backlog)
 
-- [ ] Enriquecer corpus com sinônimos clínicos (ex: demência, deterioração cognitiva)
+- [x] Sinônimos clínicos via synonym map (`data/sinonimos.txt` + `setup_search.py`) — *aplicar no Azure*
+- [x] Busca híbrida (BM25 + vetorial/RRF) em `rag.py`
 - [ ] Adicionar documentos do Manual ANCP completo (formato `.md`)
-- [ ] Implementar `loader.py` para ingestão de `.md` e `.pdf`
+- [x] Implementar `loader.py` para ingestão de `.md` e `.pdf`
 - [ ] Migrar para Azure Blob Storage + AI Search Indexer nativo (AI-102)
-- [ ] Avaliar qualidade RAG com métricas (faithfulness, relevancy)
+- [x] Avaliação com métricas (`eval.py`: Hit@k, MRR, faithfulness, relevancy) — *rodar no Azure*
