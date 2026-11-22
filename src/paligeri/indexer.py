@@ -12,9 +12,9 @@ Quando rodar:
 - Quando o corpus de documentos mudar
 - NUNCA durante inferência (use rag.py para isso)
 
-Uso:
-    python indexer.py
-    python indexer.py --file meu_corpus.json
+Uso (a partir da raiz do projeto):
+    PYTHONPATH=src python -m paligeri.indexer
+    PYTHONPATH=src python -m paligeri.indexer --file data/meu_corpus.json
 """
 
 import json
@@ -23,7 +23,7 @@ import argparse
 import os
 from typing import Optional
 
-from paligeri.config import AzureConfig, AzureOpenAIClient, AzureSearchClient
+from paligeri.config import ROOT_DIR, AzureConfig, AzureOpenAIClient, AzureSearchClient
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +31,8 @@ log = logging.getLogger(__name__)
 # CONSTANTES
 # ============================================================================
 
-DEFAULT_DOCS_PATH = "documentos_cuidados_paliativos.json"
+# Caminho absoluto, ancorado na raiz do projeto: funciona de qualquer diretório.
+DEFAULT_DOCS_PATH = os.path.join(ROOT_DIR, "data", "documentos_cuidados_paliativos.json")
 
 
 # ============================================================================

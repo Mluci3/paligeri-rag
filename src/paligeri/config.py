@@ -42,8 +42,8 @@ log = logging.getLogger(__name__)
 # ============================================================================
 
 # Sobe 3 níveis a partir de src/paligeri/ para encontrar .env na raiz
-_ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-load_dotenv(os.path.join(_ROOT_DIR, ".env"))
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+load_dotenv(os.path.join(ROOT_DIR, ".env"))
 
 
 def _get_env(key: str) -> str:

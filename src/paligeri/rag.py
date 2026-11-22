@@ -12,8 +12,8 @@ Quando rodar:
 - Sempre que o usuário quiser consultar o assistente
 - NUNCA é responsável por indexação (use indexer.py para isso)
 
-Uso:
-    python -m paligeri.rag
+Uso (a partir da raiz do projeto):
+    PYTHONPATH=src python -m paligeri.rag
 """
 
 import logging
