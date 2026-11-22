@@ -109,6 +109,16 @@ def verificar(client: SearchIndexClient, nome: str, config: AzureConfig) -> None
     """Só leitura: mostra o schema atual e a contagem de documentos."""
     from azure.search.documents import SearchClient
 
+    # Visão do serviço inteiro: o plano Free permite no máximo 3 índices,
+    # e o serviço pode ser compartilhado com outros projetos.
+    existentes = list(client.list_index_names())
+    print(f"\n🗂️  Índices no serviço ({len(existentes)}/3 no plano Free): "
+          f"{', '.join(existentes) or '(nenhum)'}")
+    if nome not in existentes:
+        print(f"\n⚠️  Índice '{nome}' não existe neste serviço.")
+        print("   Crie com: python -m paligeri.setup_search criar-indice")
+        return
+
     indice = client.get_index(nome)
     print(f"\n📋 Índice '{indice.name}':")
     for campo in indice.fields:
