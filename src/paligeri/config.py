@@ -37,6 +37,11 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
+# SDKs do Azure/OpenAI logam cada requisição HTTP em INFO; isso esconde
+# os logs da aplicação. Mostramos apenas avisos e erros deles.
+for _lib in ("azure", "httpx", "openai"):
+    logging.getLogger(_lib).setLevel(logging.WARNING)
+
 # Candidatos vetoriais no modo híbrido (o RRF precisa de mais que top_k)
 HYBRID_K_VIZINHOS = 50
 
