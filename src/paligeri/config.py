@@ -315,7 +315,7 @@ class JuizExterno:
     Expõe a mesma interface de AzureOpenAIClient.chat_json(): o eval.py
     não precisa saber qual juiz está usando (duck typing).
 
-    Use nomes de modelo com versão fixa (ex.: gemini-2.5-pro), nunca
+    Use nomes de modelo com versão explícita (ex.: gemini-3.1-pro-preview), nunca
     apelidos "*-latest": se o juiz muda por baixo, as notas deixam de ser
     comparáveis entre execuções.
     """

@@ -260,7 +260,7 @@ class TestJuiz(unittest.TestCase):
 
     def test_gemini_usa_endpoint_compativel_openai(self):
         from paligeri.config import JuizExterno
-        j = JuizExterno("gemini", "gemini-2.5-pro", "chave-falsa")
+        j = JuizExterno("gemini", "gemini-3.1-pro-preview", "chave-falsa")
         self.assertIn("generativelanguage.googleapis.com", str(j._client.base_url))
 
 
