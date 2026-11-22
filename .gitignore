@@ -12,3 +12,6 @@ venv/
 
 # Sistema
 .DS_Store
+
+# Fontes originais (ex.: Manual ANCP) — direitos autorais, não publicar
+data/raw/

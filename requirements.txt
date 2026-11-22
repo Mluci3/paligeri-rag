@@ -5,3 +5,6 @@ azure-core>=1.30.0
 
 # Configuração
 python-dotenv>=1.0.0
+
+# Opcional: leitura de PDF no loader.py
+# pypdf>=4.0.0
