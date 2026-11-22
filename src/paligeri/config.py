@@ -211,6 +211,28 @@ class AzureOpenAIClient:
             log.error("❌ Erro na API OpenAI (GPT): %s", str(e))
             return None
 
+    def chat_json(self, system: str, user: str, max_tokens: int = 300) -> Optional[str]:
+        """
+        Chamada genérica que força saída JSON (response_format).
+        Usada pelo eval.py como "LLM-as-judge". Separada de gerar_resposta()
+        para não misturar o prompt clínico com o prompt do avaliador.
+        """
+        try:
+            response = self._client.chat.completions.create(
+                model=self._config.deployment_gpt,
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user},
+                ],
+                temperature=0.0,
+                max_tokens=max_tokens,
+                response_format={"type": "json_object"},
+            )
+            return response.choices[0].message.content
+        except (RateLimitError, APIError) as e:
+            log.error("❌ Erro na API OpenAI (juiz): %s", str(e))
+            return None
+
 
 # ============================================================================
 # CLIENTE AZURE AI SEARCH

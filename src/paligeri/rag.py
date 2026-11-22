@@ -53,7 +53,7 @@ class RAGPipeline:
         self._search = search
         self._hibrida = hibrida
 
-    def _montar_contexto(self, documentos: list[dict]) -> str:
+    def montar_contexto(self, documentos: list[dict]) -> str:
         """
         Monta o contexto textual a partir dos documentos recuperados.
         Formato estruturado para maximizar groundedness do GPT.
@@ -110,7 +110,7 @@ class RAGPipeline:
             log.info("  [%d] %s (Categoria: %s)", i, doc["titulo"], doc["categoria"])
 
         # Passo 3: Monta contexto
-        contexto = self._montar_contexto(documentos)
+        contexto = self.montar_contexto(documentos)
 
         # Passo 4: Gera resposta
         log.info("🤖 Gerando resposta com GPT...")

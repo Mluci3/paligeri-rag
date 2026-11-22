@@ -1,0 +1,15 @@
+{
+  "descricao": "Golden set Paligeri. 'esperados' = ids que DEVEM ser recuperados. Lista vazia = pergunta fora do escopo (o assistente deve recusar).",
+  "casos": [
+    {"id": "q01", "tipo": "validada", "pergunta": "Como controlar a dor em pacientes em cuidados paliativos?", "esperados": ["doc1"]},
+    {"id": "q02", "tipo": "validada", "pergunta": "Quais são as etapas do protocolo SPIKES?", "esperados": ["doc2"]},
+    {"id": "q03", "tipo": "validada", "pergunta": "Como prevenir lesões por pressão em pacientes acamados?", "esperados": ["doc3"]},
+    {"id": "q04", "tipo": "validada", "pergunta": "Como controlar a dispneia em pacientes terminais?", "esperados": ["doc4"]},
+    {"id": "q05", "tipo": "validada", "pergunta": "O que é deprescrição e quando aplicar em idosos?", "esperados": ["doc5"]},
+    {"id": "q06", "tipo": "sinonimo", "pergunta": "Quais escalas avaliam dor em pacientes com demência?", "esperados": ["doc1"]},
+    {"id": "q07", "tipo": "termo-exato", "pergunta": "Para que serve a ferramenta OncPal?", "esperados": ["doc5"]},
+    {"id": "q08", "tipo": "parafrase", "pergunta": "Como dar uma notícia ruim para o paciente e a família?", "esperados": ["doc2"]},
+    {"id": "q09", "tipo": "parafrase", "pergunta": "De quanto em quanto tempo devo mudar a posição de um idoso que não sai da cama?", "esperados": ["doc3"]},
+    {"id": "q10", "tipo": "fora-do-escopo", "pergunta": "Qual a dose de insulina para diabetes tipo 1 em crianças?", "esperados": []}
+  ]
+}
