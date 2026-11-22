@@ -14,17 +14,27 @@ Avaliação quantitativa do RAG em duas camadas.
 
 Uso (a partir da raiz do projeto):
     PYTHONPATH=src python -m paligeri.eval              # só retrieval
-    PYTHONPATH=src python -m paligeri.eval --julgar     # + geração
+    PYTHONPATH=src python -m paligeri.eval --julgar     # + geração (juiz = gerador)
+
+    # Juiz de outro provedor (reduz viés de autoavaliação):
+    PYTHONPATH=src python -m paligeri.eval --julgar --juiz gemini --pausa 13
+
+    # Calibração: MESMAS respostas de uma execução anterior, só o juiz muda:
+    PYTHONPATH=src python -m paligeri.eval --rejulgar resultados/<arquivo>.json --juiz gemini
 """
 
 import argparse
 import json
 import logging
 import os
+import time
 from datetime import datetime
 from typing import Optional
 
-from paligeri.config import ROOT_DIR, AzureConfig, AzureOpenAIClient, AzureSearchClient
+from paligeri.config import (
+    PROVEDORES_JUIZ, ROOT_DIR, AzureConfig, AzureOpenAIClient,
+    AzureSearchClient, JuizExterno,
+)
 from paligeri.rag import RAGPipeline
 
 log = logging.getLogger(__name__)
@@ -125,34 +135,70 @@ def imprimir_retrieval(linhas: list[dict], k: int) -> None:
 # CAMADA 2 — GERAÇÃO (LLM-as-judge)
 # ============================================================================
 
-def avaliar_geracao(openai: AzureOpenAIClient, pipeline: RAGPipeline,
-                    casos: list[dict], k: int) -> list[dict]:
+def julgar(juiz, pergunta: str, contexto: str, resposta: str) -> dict:
+    """
+    Pede notas ao juiz. `juiz` é qualquer objeto com chat_json(system, user):
+    AzureOpenAIClient (mesmo modelo do gerador) ou JuizExterno (outro provedor).
+    """
+    bruto = juiz.chat_json(
+        PROMPT_JUIZ,
+        f"CONTEXTO:\n{contexto}\n\nPERGUNTA: {pergunta}\n\nRESPOSTA:\n{resposta}",
+    )
+    try:
+        return json.loads(bruto or "{}")
+    except json.JSONDecodeError:
+        log.warning("⚠️ Juiz devolveu JSON inválido.")
+        return {}
+
+
+def avaliar_geracao(gerador: AzureOpenAIClient, pipeline: RAGPipeline,
+                    casos: list[dict], k: int, juiz=None, pausa: float = 0.0,
+                    respostas_salvas: Optional[dict] = None) -> list[dict]:
+    """
+    Gera (ou reaproveita) respostas e as julga.
+
+    respostas_salvas: {id_caso: resposta} de uma execução anterior.
+        Permite trocar SÓ o juiz mantendo as MESMAS respostas, isolando
+        uma variável (o gerador não é determinístico).
+    pausa: segundos entre julgamentos (limites de requisição em planos free).
+    """
+    juiz = juiz or gerador
     resultados = []
-    for caso in casos:
+    for i, caso in enumerate(casos):
         docs = pipeline.recuperar(caso["pergunta"], top_k=k) or []
         contexto = pipeline.montar_contexto(docs)
-        resposta = openai.gerar_resposta(caso["pergunta"], contexto) or ""
+        if respostas_salvas and caso["id"] in respostas_salvas:
+            resposta = respostas_salvas[caso["id"]]
+        else:
+            resposta = gerador.gerar_resposta(caso["pergunta"], contexto) or ""
         recusou = FRASE_RECUSA in resposta
-        linha = {"id": caso["id"], "tipo": caso["tipo"], "resposta": resposta, "recusou": recusou}
+        linha = {
+            "id": caso["id"], "tipo": caso["tipo"], "resposta": resposta,
+            "recusou": recusou, "docs_contexto": [d["id"] for d in docs],
+        }
 
         if not caso["esperados"]:
             # Fora do escopo: o correto é recusar. Não faz sentido julgar fidelidade.
             linha["correto"] = recusou
         else:
-            bruto = openai.chat_json(
-                PROMPT_JUIZ,
-                f"CONTEXTO:\n{contexto}\n\nPERGUNTA: {caso['pergunta']}\n\nRESPOSTA:\n{resposta}",
-            )
-            try:
-                linha.update(json.loads(bruto or "{}"))
-            except json.JSONDecodeError:
-                log.warning("⚠️ Juiz devolveu JSON inválido em %s", caso["id"])
+            if pausa and i > 0:
+                time.sleep(pausa)
+            linha.update(julgar(juiz, caso["pergunta"], contexto, resposta))
         resultados.append(linha)
     return resultados
 
 
-def imprimir_geracao(resultados: list[dict]) -> None:
-    print("\n🧑‍⚖️ GERAÇÃO — LLM-as-judge (1 a 5)\n")
+def carregar_respostas(path: str) -> dict:
+    """Lê as respostas de um resultado anterior: {id_caso: resposta}."""
+    with open(path, encoding="utf-8") as f:
+        dados = json.load(f)
+    if "geracao" not in dados:
+        raise ValueError(f"{path} não tem respostas geradas (rode com --julgar).")
+    return {g["id"]: g["resposta"] for g in dados["geracao"]}
+
+
+def imprimir_geracao(resultados: list[dict], nome_juiz: str = "") -> None:
+    print(f"\n🧑‍⚖️ GERAÇÃO — LLM-as-judge (1 a 5) | juiz: {nome_juiz}\n")
     print(f"{'id':<5}{'tipo':<16}{'faith':>6}{'relev':>6}  observação")
     for r in resultados:
         if "correto" in r:
@@ -172,13 +218,26 @@ def main():
     parser.add_argument("--k", type=int, default=3, help="Top-k da busca (padrão 3)")
     parser.add_argument("--julgar", action="store_true",
                         help="Também avalia a geração com LLM-as-judge (usa GPT)")
+    parser.add_argument("--juiz", choices=["azure", *PROVEDORES_JUIZ], default="azure",
+                        help="Quem julga: azure (mesmo modelo do gerador), gemini ou openai")
+    parser.add_argument("--rejulgar", metavar="ARQUIVO",
+                        help="Reaproveita as respostas de um resultado anterior "
+                             "(troca só o juiz). Implica --julgar.")
+    parser.add_argument("--pausa", type=float, default=0.0,
+                        help="Segundos entre julgamentos (ex.: 13 no plano free do Gemini Pro)")
     args = parser.parse_args()
+    if args.rejulgar:
+        args.julgar = True
 
     try:
         config = AzureConfig.from_env()
-    except EnvironmentError as e:
+        juiz = None if args.juiz == "azure" else JuizExterno.from_env(args.juiz)
+        respostas = carregar_respostas(args.rejulgar) if args.rejulgar else None
+    except (EnvironmentError, ValueError, OSError) as e:
         log.error(str(e))
         return
+    nome_juiz = (f"{juiz.provedor}/{juiz.modelo}" if juiz
+                 else f"azure/{config.deployment_gpt}")
 
     openai = AzureOpenAIClient(config)
     search = AzureSearchClient(config)
@@ -194,8 +253,13 @@ def main():
     saida["retrieval"] = linhas
 
     if args.julgar:
-        resultados = avaliar_geracao(openai, RAGPipeline(openai, search), casos, args.k)
-        imprimir_geracao(resultados)
+        resultados = avaliar_geracao(
+            openai, RAGPipeline(openai, search), casos, args.k,
+            juiz=juiz, pausa=args.pausa, respostas_salvas=respostas,
+        )
+        imprimir_geracao(resultados, nome_juiz)
+        saida["juiz"] = nome_juiz
+        saida["respostas_de"] = args.rejulgar
         saida["geracao"] = resultados
 
     os.makedirs(RESULTADOS_DIR, exist_ok=True)

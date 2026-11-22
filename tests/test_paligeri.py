@@ -193,6 +193,77 @@ class TestMetricas(unittest.TestCase):
             self.assertTrue(set(caso["esperados"]) <= ids_corpus, caso["id"])
 
 
+class FakeJuiz:
+    def __init__(self, notas='{"faithfulness": 4, "relevancy": 5, "justificativa": "x"}'):
+        self.notas = notas
+        self.chamadas = 0
+
+    def chat_json(self, system, user, max_tokens=300):
+        self.chamadas += 1
+        return self.notas
+
+
+class TestJuiz(unittest.TestCase):
+
+    CASOS = [
+        {"id": "q1", "tipo": "t", "pergunta": "p", "esperados": ["doc1"]},
+        {"id": "q2", "tipo": "fora", "pergunta": "p2", "esperados": []},
+    ]
+
+    def test_juiz_externo_e_usado_no_lugar_do_gerador(self):
+        from paligeri.eval import avaliar_geracao
+        gerador, juiz = FakeOpenAI(), FakeJuiz()
+        res = avaliar_geracao(gerador, RAGPipeline(gerador, FakeSearch()),
+                              self.CASOS, k=2, juiz=juiz)
+        self.assertEqual(juiz.chamadas, 1)  # só o caso dentro do escopo é julgado
+        self.assertEqual(res[0]["faithfulness"], 4)
+        self.assertEqual(res[0]["docs_contexto"], ["doc1", "doc2"])
+
+    def test_rejulgar_reaproveita_respostas_sem_chamar_o_gerador(self):
+        from paligeri.eval import avaliar_geracao
+        gerador = FakeOpenAI()
+        salvas = {"q1": "resposta antiga",
+                  "q2": "Não encontrei informações suficientes nos documentos."}
+        res = avaliar_geracao(gerador, RAGPipeline(gerador, FakeSearch()), self.CASOS,
+                              k=2, juiz=FakeJuiz(), respostas_salvas=salvas)
+        self.assertEqual(gerador.contextos, [])  # gerar_resposta nunca foi chamado
+        self.assertEqual(res[0]["resposta"], "resposta antiga")
+        self.assertTrue(res[1]["correto"])
+
+    def test_json_invalido_do_juiz_nao_quebra(self):
+        from paligeri.eval import julgar
+        self.assertEqual(julgar(FakeJuiz("isto não é json"), "p", "c", "r"), {})
+
+    def test_carregar_respostas_de_resultado_anterior(self):
+        from paligeri.eval import carregar_respostas
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+            json.dump({"geracao": [{"id": "q1", "resposta": "R1"}]}, f)
+        try:
+            self.assertEqual(carregar_respostas(f.name), {"q1": "R1"})
+        finally:
+            os.unlink(f.name)
+
+    def test_resultado_sem_geracao_e_rejeitado(self):
+        from paligeri.eval import carregar_respostas
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+            json.dump({"retrieval": []}, f)
+        try:
+            with self.assertRaises(ValueError):
+                carregar_respostas(f.name)
+        finally:
+            os.unlink(f.name)
+
+    def test_provedor_desconhecido(self):
+        from paligeri.config import JuizExterno
+        with self.assertRaises(ValueError):
+            JuizExterno.from_env("inexistente")
+
+    def test_gemini_usa_endpoint_compativel_openai(self):
+        from paligeri.config import JuizExterno
+        j = JuizExterno("gemini", "gemini-2.5-pro", "chave-falsa")
+        self.assertIn("generativelanguage.googleapis.com", str(j._client.base_url))
+
+
 class TestParametrosModelo(unittest.TestCase):
     """Parâmetros de geração por tipo de modelo (sem chamar a API)."""
 

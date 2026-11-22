@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from dotenv import load_dotenv
-from openai import AzureOpenAI, APIError, APIConnectionError, RateLimitError
+from openai import AzureOpenAI, OpenAI, APIError, APIConnectionError, RateLimitError
 from azure.search.documents import SearchClient
 from azure.search.documents.models import VectorizedQuery
 from azure.core.credentials import AzureKeyCredential
@@ -285,6 +285,76 @@ class AzureOpenAIClient:
                       "Se for 'length', aumente o limite de tokens.", escolha.finish_reason)
             return None
         return texto
+
+
+# ============================================================================
+# JUIZ EXTERNO (LLM-as-judge de outro provedor)
+# ============================================================================
+
+# Provedores com API compatível com OpenAI: mesma biblioteca, outro endereço.
+PROVEDORES_JUIZ = {
+    "gemini": {
+        "base_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
+        "env_chave": "GEMINI_API_KEY",
+    },
+    "openai": {
+        "base_url": None,  # endpoint padrão da OpenAI
+        "env_chave": "OPENAI_API_KEY",
+    },
+}
+
+
+class JuizExterno:
+    """
+    Juiz de avaliação hospedado FORA do Azure (Gemini ou OpenAI).
+
+    Por que existe: quando gerador e juiz são o mesmo modelo, há viés de
+    autoavaliação (self-preference). Um juiz de outra família e de maior
+    capacidade dá notas mais confiáveis.
+
+    Expõe a mesma interface de AzureOpenAIClient.chat_json(): o eval.py
+    não precisa saber qual juiz está usando (duck typing).
+
+    Use nomes de modelo com versão fixa (ex.: gemini-2.5-pro), nunca
+    apelidos "*-latest": se o juiz muda por baixo, as notas deixam de ser
+    comparáveis entre execuções.
+    """
+
+    def __init__(self, provedor: str, modelo: str, chave: str):
+        if provedor not in PROVEDORES_JUIZ:
+            raise ValueError(f"Provedor de juiz desconhecido: {provedor}")
+        self.provedor = provedor
+        self.modelo = modelo
+        self._client = OpenAI(api_key=chave, base_url=PROVEDORES_JUIZ[provedor]["base_url"])
+        log.info("✅ Juiz externo: %s / %s", provedor, modelo)
+
+    @classmethod
+    def from_env(cls, provedor: str) -> "JuizExterno":
+        """Lê a chave do provedor e JUIZ_MODELO do .env (fail fast)."""
+        if provedor not in PROVEDORES_JUIZ:
+            raise ValueError(f"Provedor de juiz desconhecido: {provedor}")
+        chave = _get_env(PROVEDORES_JUIZ[provedor]["env_chave"])
+        return cls(provedor, _get_env("JUIZ_MODELO"), chave)
+
+    def chat_json(self, system: str, user: str, max_tokens: int = 300) -> Optional[str]:
+        """
+        Margem de tokens generosa: modelos atuais (Gemini Pro, GPT-5) "pensam"
+        antes de responder, e esse raciocínio conta no limite de saída.
+        """
+        try:
+            response = self._client.chat.completions.create(
+                model=self.modelo,
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user},
+                ],
+                response_format={"type": "json_object"},
+                max_completion_tokens=max_tokens * 10,
+            )
+            return AzureOpenAIClient._extrair_texto(response)
+        except (RateLimitError, APIError) as e:
+            log.error("❌ Erro no juiz %s: %s", self.provedor, str(e))
+            return None
 
 
 # ============================================================================
