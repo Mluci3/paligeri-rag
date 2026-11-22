@@ -194,6 +194,31 @@ class AzureOpenAIClient:
             log.error("❌ Erro na API OpenAI (embeddings): %s", str(e))
             return None
 
+    def gerar_embeddings(self, textos: list[str]) -> Optional[list[list[float]]]:
+        """
+        Embeddings em LOTE: uma requisição para vários textos.
+
+        Por quê: o deployment tem limite de requisições (10 a cada 10 s).
+        Indexar 1.500 chunks um a um levaria ~25 min; em lotes de 16, ~100
+        requisições. A API devolve os vetores na mesma ordem dos textos
+        (ordenamos por 'index' por segurança).
+        """
+        try:
+            response = self._client.embeddings.create(
+                model=self._config.deployment_embedding,
+                input=textos,
+            )
+            return [d.embedding for d in sorted(response.data, key=lambda d: d.index)]
+        except RateLimitError:
+            log.error("❌ Rate limit atingido (embeddings em lote).")
+            return None
+        except APIConnectionError:
+            log.error("❌ Falha de conexão com Azure OpenAI. Verifique o endpoint.")
+            return None
+        except APIError as e:
+            log.error("❌ Erro na API OpenAI (embeddings em lote): %s", str(e))
+            return None
+
     def gerar_resposta(self, query: str, contexto: str) -> Optional[str]:
         """
         Gera resposta fundamentada nos documentos recuperados (RAG).

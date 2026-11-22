@@ -37,6 +37,14 @@ class FakeOpenAI:
         self.contextos.append(contexto)
         return self.resposta
 
+    def gerar_embeddings(self, textos):
+        self.lotes = getattr(self, "lotes", []) + [len(textos)]
+        falhas = getattr(self, "falhas_restantes", 0)
+        if falhas:
+            self.falhas_restantes = falhas - 1
+            return None
+        return [[0.1, 0.2] for _ in textos]
+
 
 class FakeSearch:
     """Devolve ids diferentes para busca vetorial e híbrida."""
@@ -344,6 +352,55 @@ class TestArmadilhas(unittest.TestCase):
             q06 = next(g for g in json.load(f)["geracao"] if g["id"] == "q06")
         a02 = next(c for c in carregar_golden() if c["id"] == "a02")
         self.assertEqual(verificar_proibidos(q06["resposta"], a02["proibidos"]), [])
+
+
+class FakeSearchIndexacao:
+    def __init__(self):
+        self.envios = []
+
+    def indexar(self, documentos):
+        self.envios.append(len(documentos))
+        return True
+
+
+class TestIndexacaoEmLote(unittest.TestCase):
+
+    def _corpus(self, n):
+        docs = [{"id": f"d{i}", "titulo": "T", "conteudo": "C", "categoria": "X"}
+                for i in range(n)]
+        f = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False)
+        json.dump({"value": docs}, f)
+        f.close()
+        self.addCleanup(os.unlink, f.name)
+        return f.name
+
+    def test_embeddings_em_lotes_de_16(self):
+        openai, search = FakeOpenAI(), FakeSearchIndexacao()
+        self.assertTrue(Indexer(openai, search).executar(self._corpus(35)))
+        self.assertEqual(openai.lotes, [16, 16, 3])
+
+    def test_upload_fatiado_respeita_limite(self):
+        from unittest.mock import patch
+        openai, search = FakeOpenAI(), FakeSearchIndexacao()
+        with patch("paligeri.indexer.LOTE_UPLOAD", 10):
+            Indexer(openai, search).executar(self._corpus(25))
+        self.assertEqual(search.envios, [10, 10, 5])
+
+    def test_retentativa_recupera_apos_rate_limit(self):
+        from unittest.mock import patch
+        openai, search = FakeOpenAI(), FakeSearchIndexacao()
+        openai.falhas_restantes = 2  # duas falhas (429) e depois sucesso
+        with patch("paligeri.indexer.ESPERA_S", 0):
+            self.assertTrue(Indexer(openai, search).executar(self._corpus(3)))
+        self.assertEqual(search.envios, [3])
+
+    def test_desiste_apos_esgotar_tentativas_sem_enviar_nada(self):
+        from unittest.mock import patch
+        openai, search = FakeOpenAI(), FakeSearchIndexacao()
+        openai.falhas_restantes = 99
+        with patch("paligeri.indexer.ESPERA_S", 0):
+            self.assertFalse(Indexer(openai, search).executar(self._corpus(3)))
+        self.assertEqual(search.envios, [])
 
 
 class TestSinonimos(unittest.TestCase):
