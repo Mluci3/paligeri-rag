@@ -27,6 +27,7 @@ import argparse
 import json
 import logging
 import os
+import re
 import time
 from datetime import datetime
 from typing import Optional
@@ -121,10 +122,10 @@ def avaliar_retrieval(openai: AzureOpenAIClient, search: AzureSearchClient,
 
 def imprimir_retrieval(linhas: list[dict], k: int) -> None:
     print("\n📊 RETRIEVAL — posição do documento esperado (– = não encontrado)\n")
-    print(f"{'id':<5}{'tipo':<16}{'vetorial':>10}{'híbrida':>10}")
+    print(f"{'id':<5}{'tipo':<18}{'vetorial':>10}{'híbrida':>10}")
     for l in linhas:
         pos = lambda m: f"{int(1 / l[m]['rr'])}º" if l[m]["rr"] else "–"
-        print(f"{l['id']:<5}{l['tipo']:<16}{pos('vetorial'):>10}{pos('hibrida'):>10}")
+        print(f"{l['id']:<5}{l['tipo']:<18}{pos('vetorial'):>10}{pos('hibrida'):>10}")
 
     print(f"\n{'métrica':<10}{'vetorial':>10}{'híbrida':>10}")
     rv, rh = resumir(linhas, "vetorial", k), resumir(linhas, "hibrida", k)
@@ -135,6 +136,25 @@ def imprimir_retrieval(linhas: list[dict], k: int) -> None:
 # ============================================================================
 # CAMADA 2 — GERAÇÃO (LLM-as-judge)
 # ============================================================================
+
+def verificar_proibidos(resposta: str, proibidos: list[str]) -> list[str]:
+    """
+    Checagem DETERMINÍSTICA (não depende de LLM): devolve os trechos
+    proibidos que aparecem na resposta. Prefixo 're:' = expressão regular.
+
+    Por que além do juiz: o juiz é um modelo e pode errar; uma busca por
+    texto não. Usada nos casos-armadilha para flagrar doses/números
+    inventados ou importados de outro documento.
+    """
+    encontrados = []
+    for item in proibidos:
+        if item.startswith("re:"):
+            if re.search(item[3:], resposta, flags=re.IGNORECASE):
+                encontrados.append(item)
+        elif item.lower() in resposta.lower():
+            encontrados.append(item)
+    return encontrados
+
 
 def julgar(juiz, pergunta: str, contexto: str, resposta: str) -> dict:
     """
@@ -178,6 +198,8 @@ def avaliar_geracao(gerador: AzureOpenAIClient, pipeline: RAGPipeline,
             "id": caso["id"], "tipo": caso["tipo"], "resposta": resposta,
             "recusou": recusou, "docs_contexto": [d["id"] for d in docs],
         }
+        if caso.get("proibidos"):
+            linha["violacoes"] = verificar_proibidos(resposta, caso["proibidos"])
 
         if not caso["esperados"]:
             # Fora do escopo: o correto é recusar. Não faz sentido julgar fidelidade.
@@ -210,14 +232,25 @@ def carregar_respostas(path: str) -> dict:
 
 def imprimir_geracao(resultados: list[dict], nome_juiz: str = "") -> None:
     print(f"\n🧑‍⚖️ GERAÇÃO — LLM-as-judge (1 a 5) | juiz: {nome_juiz}\n")
-    print(f"{'id':<5}{'tipo':<16}{'faith':>6}{'relev':>6}  observação")
+    print(f"{'id':<5}{'tipo':<18}{'faith':>6}{'relev':>6}  observação")
     for r in resultados:
         if "correto" in r:
             obs = "✅ recusou corretamente" if r["correto"] else "❌ deveria ter recusado"
-            print(f"{r['id']:<5}{r['tipo']:<16}{'-':>6}{'-':>6}  {obs}")
+            print(f"{r['id']:<5}{r['tipo']:<18}{'-':>6}{'-':>6}  {obs}")
         else:
-            print(f"{r['id']:<5}{r['tipo']:<16}{r.get('faithfulness', '?'):>6}"
-                  f"{r.get('relevancy', '?'):>6}  {r.get('justificativa', '')[:60]}")
+            obs = r.get("justificativa", "")[:60]
+            if r.get("violacoes"):
+                obs = f"🚨 contém proibido: {r['violacoes']}"
+            elif "violacoes" in r:
+                obs = "🛡️ armadilha evitada | " + obs[:40]
+            print(f"{r['id']:<5}{r['tipo']:<18}{r.get('faithfulness', '?'):>6}"
+                  f"{r.get('relevancy', '?'):>6}  {obs}")
+
+    armadilhas = [r for r in resultados if "violacoes" in r]
+    if armadilhas:
+        caiu = sum(1 for r in armadilhas if r["violacoes"])
+        print(f"\n🪤 Armadilhas: {len(armadilhas) - caiu}/{len(armadilhas)} evitadas "
+              "(checagem determinística — revise manualmente os 🚨)")
 
 
 # ============================================================================

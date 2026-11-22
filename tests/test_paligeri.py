@@ -302,6 +302,50 @@ class TestParametrosModelo(unittest.TestCase):
         self.assertEqual(AzureOpenAIClient._extrair_texto(cheia), "ok")
 
 
+class TestArmadilhas(unittest.TestCase):
+
+    def test_detecta_dose_importada_de_outro_documento(self):
+        from paligeri.eval import verificar_proibidos
+        resposta = "Para dor intensa, use morfina 2,5-5mg a cada 4 horas."
+        self.assertIn("2,5", verificar_proibidos(resposta, ["2.5", "2,5", "5mg"]))
+
+    def test_regex_nao_gera_falso_positivo_ao_citar_unidade(self):
+        from paligeri.eval import verificar_proibidos
+        correta = "Os documentos não informam a dose de tramadol em mg."
+        inventada = "Tramadol 50 mg a cada 8 horas."
+        self.assertEqual(verificar_proibidos(correta, [r"re:\d+\s*mg"]), [])
+        self.assertEqual(verificar_proibidos(inventada, [r"re:\d+\s*mg"]), [r"re:\d+\s*mg"])
+
+    def test_violacoes_registradas_na_avaliacao(self):
+        from paligeri.eval import avaliar_geracao
+        casos = [{"id": "a1", "tipo": "armadilha", "pergunta": "dose?",
+                  "esperados": ["doc1"], "proibidos": ["2,5"]}]
+        gerador = FakeOpenAI(resposta="Morfina 2,5 mg.")
+        res = avaliar_geracao(gerador, RAGPipeline(gerador, FakeSearch()), casos,
+                              k=2, juiz=FakeJuiz())
+        self.assertEqual(res[0]["violacoes"], ["2,5"])
+
+    def test_casos_sem_proibidos_nao_tem_campo_violacoes(self):
+        from paligeri.eval import avaliar_geracao
+        casos = [{"id": "q1", "tipo": "t", "pergunta": "p", "esperados": ["doc1"]}]
+        gerador = FakeOpenAI()
+        res = avaliar_geracao(gerador, RAGPipeline(gerador, FakeSearch()), casos,
+                              k=2, juiz=FakeJuiz())
+        self.assertNotIn("violacoes", res[0])
+
+    def test_respostas_validadas_de_1814_nao_violam_armadilhas_vizinhas(self):
+        """Sanidade: as regras não acusam respostas corretas já revisadas."""
+        from paligeri.eval import carregar_golden, verificar_proibidos
+        caminho = os.path.join(os.path.dirname(DEFAULT_DOCS_PATH), "..",
+                               "resultados", "avaliacao_20261122-1814.json")
+        if not os.path.exists(caminho):
+            self.skipTest("resultado de referência ausente")
+        with open(caminho, encoding="utf-8") as f:
+            q06 = next(g for g in json.load(f)["geracao"] if g["id"] == "q06")
+        a02 = next(c for c in carregar_golden() if c["id"] == "a02")
+        self.assertEqual(verificar_proibidos(q06["resposta"], a02["proibidos"]), [])
+
+
 class TestSinonimos(unittest.TestCase):
 
     def test_regras_ignoram_comentarios(self):
