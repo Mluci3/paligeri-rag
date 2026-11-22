@@ -1,0 +1,231 @@
+{
+  "data": "2026-11-22T18:08:42",
+  "k": 3,
+  "retrieval": [
+    {
+      "id": "q01",
+      "tipo": "validada",
+      "pergunta": "Como controlar a dor em pacientes em cuidados paliativos?",
+      "vetorial": {
+        "recuperados": [
+          "doc1",
+          "doc4",
+          "doc5"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      },
+      "hibrida": {
+        "recuperados": [
+          "doc1",
+          "doc4",
+          "doc5"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      }
+    },
+    {
+      "id": "q02",
+      "tipo": "validada",
+      "pergunta": "Quais são as etapas do protocolo SPIKES?",
+      "vetorial": {
+        "recuperados": [
+          "doc2",
+          "doc3",
+          "doc5"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      },
+      "hibrida": {
+        "recuperados": [
+          "doc2",
+          "doc5",
+          "doc3"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      }
+    },
+    {
+      "id": "q03",
+      "tipo": "validada",
+      "pergunta": "Como prevenir lesões por pressão em pacientes acamados?",
+      "vetorial": {
+        "recuperados": [
+          "doc3",
+          "doc1",
+          "doc4"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      },
+      "hibrida": {
+        "recuperados": [
+          "doc3",
+          "doc1",
+          "doc4"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      }
+    },
+    {
+      "id": "q04",
+      "tipo": "validada",
+      "pergunta": "Como controlar a dispneia em pacientes terminais?",
+      "vetorial": {
+        "recuperados": [
+          "doc4",
+          "doc1",
+          "doc5"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      },
+      "hibrida": {
+        "recuperados": [
+          "doc4",
+          "doc1",
+          "doc5"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      }
+    },
+    {
+      "id": "q05",
+      "tipo": "validada",
+      "pergunta": "O que é deprescrição e quando aplicar em idosos?",
+      "vetorial": {
+        "recuperados": [
+          "doc5",
+          "doc1",
+          "doc4"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      },
+      "hibrida": {
+        "recuperados": [
+          "doc5",
+          "doc1",
+          "doc4"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      }
+    },
+    {
+      "id": "q06",
+      "tipo": "sinonimo",
+      "pergunta": "Quais escalas avaliam dor em pacientes com demência?",
+      "vetorial": {
+        "recuperados": [
+          "doc1",
+          "doc3",
+          "doc4"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      },
+      "hibrida": {
+        "recuperados": [
+          "doc1",
+          "doc3",
+          "doc2"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      }
+    },
+    {
+      "id": "q07",
+      "tipo": "termo-exato",
+      "pergunta": "Para que serve a ferramenta OncPal?",
+      "vetorial": {
+        "recuperados": [
+          "doc5",
+          "doc2",
+          "doc1"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      },
+      "hibrida": {
+        "recuperados": [
+          "doc5",
+          "doc1",
+          "doc2"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      }
+    },
+    {
+      "id": "q08",
+      "tipo": "parafrase",
+      "pergunta": "Como dar uma notícia ruim para o paciente e a família?",
+      "vetorial": {
+        "recuperados": [
+          "doc2",
+          "doc4",
+          "doc5"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      },
+      "hibrida": {
+        "recuperados": [
+          "doc2",
+          "doc1",
+          "doc4"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      }
+    },
+    {
+      "id": "q09",
+      "tipo": "parafrase",
+      "pergunta": "De quanto em quanto tempo devo mudar a posição de um idoso que não sai da cama?",
+      "vetorial": {
+        "recuperados": [
+          "doc3",
+          "doc4",
+          "doc1"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      },
+      "hibrida": {
+        "recuperados": [
+          "doc2",
+          "doc3",
+          "doc1"
+        ],
+        "hit@1": 0.0,
+        "hit@3": 1.0,
+        "rr": 0.5
+      }
+    }
+  ]
+}
