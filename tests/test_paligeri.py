@@ -230,6 +230,15 @@ class TestJuiz(unittest.TestCase):
         self.assertEqual(res[0]["resposta"], "resposta antiga")
         self.assertTrue(res[1]["correto"])
 
+    def test_juiz_falhando_seguidamente_aborta(self):
+        from paligeri.eval import avaliar_geracao
+        casos = [{"id": f"q{i}", "tipo": "t", "pergunta": "p", "esperados": ["doc1"]}
+                 for i in range(5)]
+        gerador, juiz = FakeOpenAI(), FakeJuiz(notas=None)  # juiz sempre falha
+        with self.assertRaises(RuntimeError):
+            avaliar_geracao(gerador, RAGPipeline(gerador, FakeSearch()), casos, k=2, juiz=juiz)
+        self.assertEqual(juiz.chamadas, 2)  # parou na 2ª falha, não tentou os 5
+
     def test_json_invalido_do_juiz_nao_quebra(self):
         from paligeri.eval import julgar
         self.assertEqual(julgar(FakeJuiz("isto não é json"), "p", "c", "r"), {})

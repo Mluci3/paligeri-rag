@@ -42,6 +42,7 @@ log = logging.getLogger(__name__)
 GOLDEN_PATH = os.path.join(ROOT_DIR, "data", "avaliacao.json")
 RESULTADOS_DIR = os.path.join(ROOT_DIR, "resultados")
 FRASE_RECUSA = "Não encontrei informações suficientes"
+MAX_FALHAS_JUIZ = 2
 
 PROMPT_JUIZ = (
     "Você é um avaliador rigoroso de sistemas RAG clínicos. "
@@ -164,6 +165,7 @@ def avaliar_geracao(gerador: AzureOpenAIClient, pipeline: RAGPipeline,
     """
     juiz = juiz or gerador
     resultados = []
+    falhas_seguidas = 0
     for i, caso in enumerate(casos):
         docs = pipeline.recuperar(caso["pergunta"], top_k=k) or []
         contexto = pipeline.montar_contexto(docs)
@@ -183,7 +185,16 @@ def avaliar_geracao(gerador: AzureOpenAIClient, pipeline: RAGPipeline,
         else:
             if pausa and i > 0:
                 time.sleep(pausa)
-            linha.update(julgar(juiz, caso["pergunta"], contexto, resposta))
+            notas = julgar(juiz, caso["pergunta"], contexto, resposta)
+            # Fail fast: juiz falhando seguidamente (cota zerada, modelo
+            # inexistente) produziria um resultado inválido cheio de "?".
+            falhas_seguidas = 0 if notas else falhas_seguidas + 1
+            if falhas_seguidas >= MAX_FALHAS_JUIZ:
+                raise RuntimeError(
+                    f"Juiz falhou {falhas_seguidas}x seguidas; avaliação abortada "
+                    "sem salvar. Veja o erro acima."
+                )
+            linha.update(notas)
         resultados.append(linha)
     return resultados
 
@@ -253,10 +264,14 @@ def main():
     saida["retrieval"] = linhas
 
     if args.julgar:
-        resultados = avaliar_geracao(
-            openai, RAGPipeline(openai, search), casos, args.k,
-            juiz=juiz, pausa=args.pausa, respostas_salvas=respostas,
-        )
+        try:
+            resultados = avaliar_geracao(
+                openai, RAGPipeline(openai, search), casos, args.k,
+                juiz=juiz, pausa=args.pausa, respostas_salvas=respostas,
+            )
+        except RuntimeError as e:
+            log.error("❌ %s", e)
+            return
         imprimir_geracao(resultados, nome_juiz)
         saida["juiz"] = nome_juiz
         saida["respostas_de"] = args.rejulgar
