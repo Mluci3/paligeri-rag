@@ -1,0 +1,44 @@
+{
+  "value": [
+    {
+      "@search.action": "upload",
+      "id": "doc1",
+      "titulo": "Controle de sintomas: dor em cuidados paliativos",
+      "conteudo": "O controle adequado da dor é objetivo primordial em cuidados paliativos. A avaliação deve ser sistemática utilizando escalas apropriadas, considerando a subjetividade e individualidade da experiência dolorosa. Para idosos com déficit cognitivo, escalas observacionais como PAINAD são recomendadas. O tratamento segue a escada analgésica da OMS: analgésicos simples (paracetamol, dipirona) para dor leve, opióides fracos (codeína, tramadol) para dor moderada, e opióides fortes (morfina, metadona, fentanil) para dor intensa. A via de administração deve ser a menos invasiva possível, preferindo-se via oral seguida de subcutânea (hipodermóclise). Em casos de dor aguda como cefaleias tensionais, lombalgias ou cervicalgias, analgésicos simples são adequados. Opióides em idosos exigem titulação cuidadosa devido à função renal reduzida e maior sensibilidade a efeitos adversos como constipação intestinal, náuseas e confusão mental. O controle eficaz da dor permite que pacientes permaneçam em domicílio evitando hospitalizações.",
+      "categoria": "Controle de Sintomas",
+      "embedding": []
+    },
+    {
+      "@search.action": "upload",
+      "id": "doc2",
+      "titulo": "Comunicação em cuidados paliativos: protocolo SPIKES",
+      "conteudo": "A comunicação eficaz é pilar fundamental dos cuidados paliativos. Robert Twycross discute a dificuldade do médico em comunicar a terminalidade da vida colocando em jogo o próprio medo da morte e pressões culturais. O protocolo SPIKES orienta comunicação de más notícias em seis etapas: Setting (preparar ambiente privativo e sentar-se demonstrando disponibilidade), Perception (avaliar quanto o paciente já sabe perguntando 'o que o senhor imagina que o exame mostrou?'), Invitation (obter consentimento para fornecer informação), Knowledge (transmitir informação com linguagem acessível e aos poucos sem inundar o paciente), Emotions (acolher reações emocionais com empatia validando sentimentos), Strategy (estabelecer plano terapêutico conjunto). Em geriatria, considerar declínio cognitivo na compreensão do prognóstico e respeitar autonomia do idoso mesmo com presença familiar. Comunicação clara e empática fortalece vínculo terapêutico e favorece adesão ao tratamento proposto.",
+      "categoria": "Comunicação",
+      "embedding": []
+    },
+    {
+      "@search.action": "upload",
+      "id": "doc3",
+      "titulo": "Prevenção de lesões por pressão: Escala de Braden e medidas preventivas",
+      "conteudo": "A Escala de Braden é instrumento validado para avaliação de risco de lesões por pressão composta por seis domínios: percepção sensorial, mobilidade, atividade, umidade, nutrição e fricção/cisalhamento. Pontuação varia de 6 a 23 sendo que escores abaixo de 18 indicam risco em idosos. A avaliação deve ocorrer nas primeiras seis horas após admissão e ser reavaliada periodicamente. Estima-se que 95% das lesões por pressão são evitáveis através da identificação precoce do risco e implementação de medidas preventivas. Pacientes em risco requerem mudança de decúbito a cada 2 horas com atenção especial às proeminências ósseas (sacro, calcâneos, trocanteres). Medidas preventivas incluem uso de colchões pneumáticos de redistribuição de pressão, hidratação adequada da pele com emolientes evitando atrito, controle rigoroso de umidade (troca frequente de fraldas em incontinentes), e suporte nutricional adequado pois desnutrição reduz tolerância tecidual à pressão. A documentação das avaliações em prontuário permite comunicação efetiva entre equipe e monitoramento da evolução do paciente.",
+      "categoria": "Cuidados de Enfermagem",
+      "embedding": []
+    },
+    {
+      "@search.action": "upload",
+      "id": "doc4",
+      "titulo": "Cuidados ao final da vida: controle de sintomas e sedação paliativa",
+      "conteudo": "Na fase final de vida, o foco dos cuidados paliativos é proporcionar conforto e dignidade respeitando as particularidades do indivíduo. Dispneia terminal pode ser aliviada com morfina em doses baixas (2.5-5mg a cada 4 horas) associada ao posicionamento adequado elevando cabeceira. A decisão sobre hidratação e nutrição artificiais deve considerar que na terminalidade esses recursos frequentemente geram mais desconforto que benefício sendo mais apropriado priorizar medidas de conforto como higiene oral frequente para xerostomia. O suporte espiritual deve ser oferecido respeitando crenças e valores do paciente. A presença familiar é elemento fundamental devendo a equipe orientar sobre sinais de aproximação da morte. Sedação paliativa contínua pode ser considerada em casos de sofrimento refratário a outras medidas, sempre precedida de discussão multidisciplinar, consentimento informado quando possível, e reavaliação contínua. O objetivo é aliviar sofrimento mantendo dignidade sem antecipar nem postergar a morte.",
+      "categoria": "Fim de Vida",
+      "embedding": []
+    },
+    {
+      "@search.action": "upload",
+      "id": "doc5",
+      "titulo": "Deprescrição e farmacoterapia em cuidados paliativos",
+      "conteudo": "Deprescrição é processo sistemático de descontinuação de medicamentos cujos danos superam os benefícios. Em cuidados paliativos, a revisão farmacoterapêutica é essencial considerando que polifarmácia (uso de 5 ou mais medicamentos) aumenta risco de reações adversas, interações medicamentosas e reduz qualidade de vida. Ferramentas como OncPal identificam medicamentos potencialmente inapropriados incluindo anticoagulantes preventivos, anti-hipertensivos, estatinas, bisfosfonatos, vitaminas e inibidores de bomba de prótons quando usados profilaticamente. O processo de deprescrição segue etapas: reconciliação medicamentosa, avaliação de risco-benefício individual, priorização de medicamentos a descontinuar (preferindo aqueles com razão risco-benefício desfavorável), e monitoramento cuidadoso. Medicamentos que devem ser mantidos são aqueles que aliviam sintomas aqui e agora como analgésicos, antieméticos e ansiolíticos. A via de administração deve ser simplificada preferindo formulações de dose única diária quando possível. É crucial explicar ao paciente e familiares que a deprescrição não significa desistência mas sim adequação terapêutica aos objetivos atuais de cuidado.",
+      "categoria": "Farmacoterapia",
+      "embedding": []
+    }
+  ]
+}
