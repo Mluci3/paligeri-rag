@@ -26,7 +26,7 @@ flowchart LR
         Q[Pergunta] --> R[rag.py]
         R -->|embedding + texto| E
         E -->|top-k via RRF| R
-        R -->|contexto + regras| G[Azure OpenAI<br/>gpt-4o]
+        R -->|contexto + regras| G[Azure AI Foundry<br/>gpt-5.4-nano]
         G --> S[Resposta + Fonte + Limitação]
     end
     E -.-> V[eval.py<br/>Hit@k · MRR · LLM-as-judge]
@@ -49,7 +49,7 @@ flowchart LR
 
 **Chunking por seção com overlap (1500 / 200 caracteres).** Respeita a estrutura do manual, e cada chunk leva o caminho de seções no título, o que melhora o embedding e a citação. O loader gera um JSON **revisável antes de pagar** por embeddings.
 
-**Groundedness no prompt.** `temperature=0`, uso exclusivo do contexto, formato fixo (Resposta / Fonte / Limitação) e uma frase de recusa padronizada, que torna a recusa **verificável automaticamente** na avaliação.
+**Groundedness no prompt.** Uso exclusivo do contexto, formato fixo (Resposta / Fonte / Limitação) e uma frase de recusa padronizada, que torna a recusa **verificável automaticamente** na avaliação.
 
 **Testabilidade por injeção de dependência.** O pipeline recebe os clientes prontos, então os 19 testes rodam com fakes, sem custo e sem rede.
 
@@ -93,9 +93,9 @@ python -m paligeri.indexer --file data/corpus_ancp.json
 ## 6. Limitações conhecidas
 
 - Corpus pequeno (5 documentos): as métricas ainda têm baixo poder estatístico.
-- Usa `text-embedding-ada-002`. Modelos mais novos (`text-embedding-3-*`) tendem a ser melhores, mas exigem reindexar.
+- O modelo de geração é de raciocínio (`gpt-5.4-nano`), que não aceita `temperature=0`: a resposta pode variar um pouco entre execuções. A groundedness depende do prompt e é medida pelo `eval.py`. O código também aceita modelos clássicos (`AZURE_OPENAI_REASONING=false`).
 - Autenticação por chave. Em produção, o ideal é Managed Identity + Key Vault.
-- O LLM-as-judge usa o mesmo modelo que gera as respostas, o que pode introduzir viés de autoavaliação.
+- O LLM-as-judge usa o mesmo modelo que gera as respostas (um modelo *nano*). Isso pode introduzir viés de autoavaliação, e as notas devem ser lidas como indicativas. Um juiz de maior capacidade é o próximo passo natural.
 - A extração de PDF é feita por página. Converter para Markdown antes preserva melhor a estrutura.
 
 ## 7. Próximos passos
@@ -108,4 +108,4 @@ python -m paligeri.indexer --file data/corpus_ancp.json
 
 ## Stack
 
-Python 3.11 · Azure OpenAI (gpt-4o, text-embedding-ada-002) · Azure AI Search (BM25, HNSW, RRF, synonym maps) · unittest
+Python 3.11 · Azure AI Foundry / OpenAI (gpt-5.4-nano, text-embedding-3-small) · Azure AI Search (BM25, HNSW, RRF, synonym maps) · unittest

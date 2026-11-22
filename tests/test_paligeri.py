@@ -193,6 +193,35 @@ class TestMetricas(unittest.TestCase):
             self.assertTrue(set(caso["esperados"]) <= ids_corpus, caso["id"])
 
 
+class TestParametrosModelo(unittest.TestCase):
+    """Parâmetros de geração por tipo de modelo (sem chamar a API)."""
+
+    def _cliente(self, raciocinio: bool):
+        from paligeri.config import AzureConfig, AzureOpenAIClient
+        cfg = AzureConfig("https://x.openai.azure.com/", "k", "gpt", "emb",
+                          "https://s", "k", "idx", modelo_raciocinio=raciocinio)
+        return AzureOpenAIClient(cfg)  # só instancia; não faz requisição
+
+    def test_modelo_classico_usa_temperature_e_max_tokens(self):
+        p = self._cliente(False)._params_geracao(800)
+        self.assertEqual(p, {"temperature": 0.0, "max_tokens": 800})
+
+    def test_modelo_raciocinio_nao_envia_temperature(self):
+        p = self._cliente(True)._params_geracao(800)
+        self.assertNotIn("temperature", p)
+        self.assertNotIn("max_tokens", p)
+        self.assertGreater(p["max_completion_tokens"], 800)  # margem p/ raciocínio
+        self.assertEqual(p["reasoning_effort"], "low")
+
+    def test_resposta_vazia_vira_none(self):
+        from types import SimpleNamespace as NS
+        from paligeri.config import AzureOpenAIClient
+        vazia = NS(choices=[NS(message=NS(content=""), finish_reason="length")])
+        cheia = NS(choices=[NS(message=NS(content="ok"), finish_reason="stop")])
+        self.assertIsNone(AzureOpenAIClient._extrair_texto(vazia))
+        self.assertEqual(AzureOpenAIClient._extrair_texto(cheia), "ok")
+
+
 class TestSinonimos(unittest.TestCase):
 
     def test_regras_ignoram_comentarios(self):

@@ -69,6 +69,16 @@ def _get_env(key: str) -> str:
     return value
 
 
+def _get_env_opcional(key: str, padrao: str) -> str:
+    """Variável opcional: usa o valor padrão quando ausente no .env."""
+    return os.getenv(key) or padrao
+
+
+# Versão da API compatível com modelos de raciocínio (max_completion_tokens,
+# reasoning_effort). Sobrescreva com AZURE_OPENAI_API_VERSION no .env.
+API_VERSION_PADRAO = "2025-04-01-preview"
+
+
 # ============================================================================
 # DATACLASS DE CONFIGURAÇÃO
 # ============================================================================
@@ -88,6 +98,12 @@ class AzureConfig:
     search_endpoint: str
     search_key: str
     search_index: str
+    # Opcionais (têm padrão) — ficam por último no dataclass
+    api_version: str = API_VERSION_PADRAO
+    # True para modelos de raciocínio (GPT-5, o-series): sem temperature,
+    # usa max_completion_tokens e reasoning_effort. Explícito em vez de
+    # "adivinhar" pelo nome do deployment, que é livre.
+    modelo_raciocinio: bool = False
 
     @classmethod
     def from_env(cls) -> "AzureConfig":
@@ -104,6 +120,8 @@ class AzureConfig:
             search_endpoint=_get_env("AZURE_SEARCH_ENDPOINT"),
             search_key=_get_env("AZURE_SEARCH_KEY"),
             search_index=_get_env("AZURE_SEARCH_INDEX"),
+            api_version=_get_env_opcional("AZURE_OPENAI_API_VERSION", API_VERSION_PADRAO),
+            modelo_raciocinio=_get_env_opcional("AZURE_OPENAI_REASONING", "false").lower() == "true",
         )
         log.info("✅ Configuração carregada com sucesso.")
         return config
@@ -130,9 +148,26 @@ class AzureOpenAIClient:
         self._client = AzureOpenAI(
             azure_endpoint=config.openai_endpoint,
             api_key=config.openai_key,
-            api_version="2024-02-01"
+            api_version=config.api_version,
         )
         log.info("✅ AzureOpenAIClient inicializado: %s", config.openai_endpoint)
+
+    def _params_geracao(self, max_saida: int) -> dict:
+        """
+        Parâmetros de geração conforme o tipo de modelo.
+
+        - Clássico (gpt-4o): temperature=0 para máximo determinismo.
+        - Raciocínio (gpt-5.x): temperature não é aceito; max_completion_tokens
+          inclui os tokens de "pensamento", por isso a margem é maior
+          (senão o modelo gasta tudo pensando e devolve resposta vazia).
+          reasoning_effort="low": em RAG a busca já fez o trabalho pesado.
+        """
+        if self._config.modelo_raciocinio:
+            return {
+                "max_completion_tokens": max_saida * 4,
+                "reasoning_effort": "low",
+            }
+        return {"temperature": 0.0, "max_tokens": max_saida}
 
     def gerar_embedding(self, texto: str) -> Optional[list[float]]:
         """
@@ -169,7 +204,7 @@ class AzureOpenAIClient:
         - Cita a fonte de cada afirmação
         - Não inventa, não itera, não completa com conhecimento externo
 
-        temperature=0.0: máximo determinismo para contexto clínico.
+        Parâmetros de geração: ver _params_geracao() (clássico x raciocínio).
         """
         try:
             messages = [
@@ -204,10 +239,9 @@ class AzureOpenAIClient:
             response = self._client.chat.completions.create(
                 model=self._config.deployment_gpt,
                 messages=messages,
-                temperature=0.0,
-                max_tokens=800
+                **self._params_geracao(800),
             )
-            return response.choices[0].message.content
+            return self._extrair_texto(response)
 
         except RateLimitError:
             log.error("❌ Rate limit atingido (GPT). Aguarde e tente novamente.")
@@ -229,14 +263,28 @@ class AzureOpenAIClient:
                     {"role": "system", "content": system},
                     {"role": "user", "content": user},
                 ],
-                temperature=0.0,
-                max_tokens=max_tokens,
                 response_format={"type": "json_object"},
+                **self._params_geracao(max_tokens),
             )
-            return response.choices[0].message.content
+            return self._extrair_texto(response)
         except (RateLimitError, APIError) as e:
             log.error("❌ Erro na API OpenAI (juiz): %s", str(e))
             return None
+
+    @staticmethod
+    def _extrair_texto(response) -> Optional[str]:
+        """
+        Extrai o texto da resposta e detecta a falha silenciosa típica de
+        modelos de raciocínio: finish_reason='length' com conteúdo vazio
+        (o limite foi consumido pelos tokens de raciocínio).
+        """
+        escolha = response.choices[0]
+        texto = escolha.message.content
+        if not texto:
+            log.error("❌ Resposta vazia do modelo (finish_reason=%s). "
+                      "Se for 'length', aumente o limite de tokens.", escolha.finish_reason)
+            return None
+        return texto
 
 
 # ============================================================================

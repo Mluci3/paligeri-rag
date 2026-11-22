@@ -45,7 +45,7 @@ log = logging.getLogger(__name__)
 SYNONYM_MAP_NAME = "sinonimos-clinicos"
 SINONIMOS_PATH = os.path.join(ROOT_DIR, "data", "sinonimos.txt")
 CAMPOS_TEXTO = ("titulo", "conteudo")
-EMBEDDING_DIMS = 1536  # text-embedding-ada-002
+EMBEDDING_DIMS = 1536  # text-embedding-3-small (e ada-002)
 
 
 def carregar_regras_sinonimos(path: str = SINONIMOS_PATH) -> list[str]:
@@ -64,7 +64,7 @@ def definir_indice(nome: str) -> SearchIndex:
 
     - analyzer pt-Br.microsoft: lematização em português
       ("dores" encontra "dor"), melhor que o analisador padrão (inglês).
-    - Vetorial HNSW com 1536 dimensões (ada-002).
+    - Vetorial HNSW com 1536 dimensões (text-embedding-3-small).
     """
     return SearchIndex(
         name=nome,

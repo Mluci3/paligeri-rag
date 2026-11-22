@@ -34,7 +34,7 @@ log = logging.getLogger(__name__)
 # PARÂMETROS DE CHUNKING
 # ============================================================================
 # ~1500 caracteres ≈ 350-400 tokens em português: cabe folgado no limite
-# do ada-002 (8191 tokens) e mantém o embedding focado em um assunto.
+# dos modelos de embedding (8191 tokens) e mantém o embedding focado em um assunto.
 # Mesma ordem de grandeza dos 5 documentos atuais (~1000-1200 chars),
 # o que mantém o corpus homogêneo.
 MAX_CHARS = 1500
