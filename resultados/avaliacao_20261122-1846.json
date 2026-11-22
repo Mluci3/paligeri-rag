@@ -1,0 +1,373 @@
+{
+  "data": "2026-11-22T18:44:57",
+  "k": 3,
+  "retrieval": [
+    {
+      "id": "q01",
+      "tipo": "validada",
+      "pergunta": "Como controlar a dor em pacientes em cuidados paliativos?",
+      "vetorial": {
+        "recuperados": [
+          "doc1",
+          "doc4",
+          "doc5"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      },
+      "hibrida": {
+        "recuperados": [
+          "doc1",
+          "doc4",
+          "doc5"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      }
+    },
+    {
+      "id": "q02",
+      "tipo": "validada",
+      "pergunta": "Quais são as etapas do protocolo SPIKES?",
+      "vetorial": {
+        "recuperados": [
+          "doc2",
+          "doc3",
+          "doc5"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      },
+      "hibrida": {
+        "recuperados": [
+          "doc2",
+          "doc5",
+          "doc3"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      }
+    },
+    {
+      "id": "q03",
+      "tipo": "validada",
+      "pergunta": "Como prevenir lesões por pressão em pacientes acamados?",
+      "vetorial": {
+        "recuperados": [
+          "doc3",
+          "doc1",
+          "doc4"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      },
+      "hibrida": {
+        "recuperados": [
+          "doc3",
+          "doc1",
+          "doc4"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      }
+    },
+    {
+      "id": "q04",
+      "tipo": "validada",
+      "pergunta": "Como controlar a dispneia em pacientes terminais?",
+      "vetorial": {
+        "recuperados": [
+          "doc4",
+          "doc1",
+          "doc5"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      },
+      "hibrida": {
+        "recuperados": [
+          "doc4",
+          "doc1",
+          "doc5"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      }
+    },
+    {
+      "id": "q05",
+      "tipo": "validada",
+      "pergunta": "O que é deprescrição e quando aplicar em idosos?",
+      "vetorial": {
+        "recuperados": [
+          "doc5",
+          "doc1",
+          "doc4"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      },
+      "hibrida": {
+        "recuperados": [
+          "doc5",
+          "doc1",
+          "doc4"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      }
+    },
+    {
+      "id": "q06",
+      "tipo": "sinonimo",
+      "pergunta": "Quais escalas avaliam dor em pacientes com demência?",
+      "vetorial": {
+        "recuperados": [
+          "doc1",
+          "doc3",
+          "doc4"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      },
+      "hibrida": {
+        "recuperados": [
+          "doc1",
+          "doc3",
+          "doc2"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      }
+    },
+    {
+      "id": "q07",
+      "tipo": "termo-exato",
+      "pergunta": "Para que serve a ferramenta OncPal?",
+      "vetorial": {
+        "recuperados": [
+          "doc5",
+          "doc2",
+          "doc1"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      },
+      "hibrida": {
+        "recuperados": [
+          "doc5",
+          "doc1",
+          "doc2"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      }
+    },
+    {
+      "id": "q08",
+      "tipo": "parafrase",
+      "pergunta": "Como dar uma notícia ruim para o paciente e a família?",
+      "vetorial": {
+        "recuperados": [
+          "doc2",
+          "doc4",
+          "doc5"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      },
+      "hibrida": {
+        "recuperados": [
+          "doc2",
+          "doc1",
+          "doc4"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      }
+    },
+    {
+      "id": "q09",
+      "tipo": "parafrase",
+      "pergunta": "De quanto em quanto tempo devo mudar a posição de um idoso que não sai da cama?",
+      "vetorial": {
+        "recuperados": [
+          "doc3",
+          "doc4",
+          "doc1"
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "rr": 1.0
+      },
+      "hibrida": {
+        "recuperados": [
+          "doc2",
+          "doc3",
+          "doc1"
+        ],
+        "hit@1": 0.0,
+        "hit@3": 1.0,
+        "rr": 0.5
+      }
+    }
+  ],
+  "juiz": "gemini/gemini-3.1-pro-preview",
+  "respostas_de": "resultados/avaliacao_20261122-1814.json",
+  "geracao": [
+    {
+      "id": "q01",
+      "tipo": "validada",
+      "resposta": "- **Resposta:** O controle adequado da dor é objetivo primordial em cuidados paliativos e deve ser feito com **avaliação sistemática**, usando escalas apropriadas para captar a experiência dolorosa do paciente (especialmente em **idosos com déficit cognitivo**, quando se recomendam **escalas observacionais como PAINAD**).  \n  O tratamento segue a **escada analgésica da OMS**:  \n  - **Dor leve:** analgésicos simples (**paracetamol, dipirona**)  \n  - **Dor moderada:** **opióides fracos** (**codeína, tramadol**)  \n  - **Dor intensa:** **opióides fortes** (**morfina, metadona, fentanil**)  \n  A via deve ser a **menos invasiva possível**, preferindo-se **via oral** e, quando necessário, **subcutânea (hipodermóclise)**.  \n  Em **idosos**, ao usar opióides, é necessária **titragem cuidadosa** por **função renal reduzida** e maior sensibilidade a efeitos adversos, como **constipação intestinal, náuseas e confusão mental**.  \n  Quando o manejo é eficaz, isso pode permitir que o paciente permaneça em **domicílio**, evitando hospitalizações.  \n- **Fonte:** *Documento 1 - Controle de sintomas: dor em cuidados paliativos*  \n- **Limitação:** Os documentos não detalham esquemas de dose/titulação específicos por intensidade de dor (além da orientação geral da escada analgésica e da necessidade de titulação cuidadosa em idosos).",
+      "recusou": false,
+      "docs_contexto": [
+        "doc1",
+        "doc4",
+        "doc5"
+      ],
+      "faithfulness": 5,
+      "relevancy": 5,
+      "justificativa": "A resposta utiliza fielmente as informações do Documento 1 para responder de forma direta e completa como deve ser feito o controle da dor nos pacientes em cuidados paliativos."
+    },
+    {
+      "id": "q02",
+      "tipo": "validada",
+      "resposta": "- **Resposta:** As etapas do protocolo **SPIKES** são: **Setting** (preparar ambiente privativo e sentar-se demonstrando disponibilidade), **Perception** (avaliar quanto o paciente já sabe, perguntando o que ele imagina sobre o exame), **Invitation** (obter consentimento para fornecer informação), **Knowledge** (transmitir a informação em linguagem acessível e aos poucos), **Emotions** (acolher reações emocionais com empatia validando sentimentos) e **Strategy** (estabelecer um plano terapêutico em conjunto).  \n- **Fonte:** Documento 1 - *Comunicação em cuidados paliativos: protocolo SPIKES*  \n- **Limitação:** Os documentos fornecidos não trazem mais detalhes além dessas seis etapas e seu conteúdo resumido dentro de cada fase.",
+      "recusou": false,
+      "docs_contexto": [
+        "doc2",
+        "doc5",
+        "doc3"
+      ],
+      "faithfulness": 5,
+      "relevancy": 5,
+      "justificativa": "A resposta responde diretamente à pergunta ao listar e descrever perfeitamente as seis etapas do protocolo SPIKES, sendo totalmente fiel às informações do Documento 1."
+    },
+    {
+      "id": "q03",
+      "tipo": "validada",
+      "resposta": "- **Resposta:** Para prevenir lesões por pressão em pacientes acamados, deve-se avaliar precocemente o risco com a **Escala de Braden** (aplicada nas primeiras **6 horas após admissão** e **reavaliada periodicamente**). Escores **abaixo de 18** indicam risco em idosos. Nos pacientes em risco, recomenda-se **mudança de decúbito a cada 2 horas**, com atenção especial às **proeminências ósseas** (sacro, calcâneos e trocanteres). Também são medidas preventivas: **uso de colchões pneumáticos de redistribuição de pressão**, **hidratação adequada da pele** com emolientes para evitar atrito, **controle rigoroso de umidade** (ex.: troca frequente de fraldas em incontinentes) e **suporte nutricional adequado** (pois desnutrição reduz a tolerância tecidual à pressão). Por fim, **documentar as avaliações no prontuário** ajuda a comunicação e o monitoramento da evolução.\n- **Fonte:** Documento 1 - *Prevenção de lesões por pressão: Escala de Braden e medidas preventivas*.\n- **Limitação:** Os documentos não detalham outras estratégias específicas além dessas medidas (por exemplo, protocolos de curativos/gestão individual por tipo de pele ou dispositivos além de colchões pneumáticos).",
+      "recusou": false,
+      "docs_contexto": [
+        "doc3",
+        "doc1",
+        "doc4"
+      ],
+      "faithfulness": 5,
+      "relevancy": 5,
+      "justificativa": "A resposta é totalmente fiel ao Documento 1, extraindo com precisão as medidas preventivas e a escala de avaliação, além de responder direta e integralmente à pergunta formulada."
+    },
+    {
+      "id": "q04",
+      "tipo": "validada",
+      "resposta": "- Resposta: Na fase final de vida, a dispneia terminal pode ser aliviada com morfina em doses baixas (2,5–5 mg a cada 4 horas), associada ao posicionamento adequado, elevando a cabeceira. Se houver sofrimento refratário a outras medidas, pode ser considerada sedação paliativa contínua, após discussão multidisciplinar, consentimento informado quando possível e reavaliação contínua, com objetivo de aliviar o sofrimento sem antecipar nem postergar a morte.  \n- Fonte: Documento 1 - Cuidados ao final da vida: controle de sintomas e sedação paliativa  \n- Limitação: Os documentos não detalham outras opções específicas para dispneia terminal além de morfina em doses baixas, posicionamento (cabeceira elevada) e a possibilidade de sedação paliativa contínua em sofrimento refratário.",
+      "recusou": false,
+      "docs_contexto": [
+        "doc4",
+        "doc1",
+        "doc5"
+      ],
+      "faithfulness": 5,
+      "relevancy": 5,
+      "justificativa": "A resposta utiliza informações precisas e fiéis ao contexto fornecido para responder diretamente à pergunta sobre o manejo da dispneia terminal."
+    },
+    {
+      "id": "q05",
+      "tipo": "validada",
+      "resposta": "- Resposta: Deprescrição é um processo sistemático de descontinuação de medicamentos cujos danos superam os benefícios. Em idosos, deve ser aplicada como parte da revisão farmacoterapêutica em cuidados paliativos, especialmente quando há polifarmácia (uso de 5 ou mais medicamentos), pois isso aumenta o risco de reações adversas e interações medicamentosas e pode reduzir a qualidade de vida. O processo envolve reconciliação medicamentosa, avaliação individual de risco-benefício, priorização de quais medicamentos descontinuar (preferindo aqueles com razão risco-benefício desfavorável), e monitoramento cuidadoso. Medicamentos que devem ser mantidos são os que aliviam sintomas “aqui e agora” (por exemplo, analgésicos, antieméticos e ansiolíticos).\n- Fonte: Documento 1 - Deprescrição e farmacoterapia em cuidados paliativos.\n- Limitação: Os documentos fornecidos não detalham critérios específicos “por faixa etária” ou “prazos” para quando aplicar em idosos além do contexto de polifarmácia/revisão farmacoterapêutica em cuidados paliativos, nem descrevem protocolos detalhados de monitoramento em cada situação.",
+      "recusou": false,
+      "docs_contexto": [
+        "doc5",
+        "doc1",
+        "doc4"
+      ],
+      "faithfulness": 5,
+      "relevancy": 5,
+      "justificativa": "A resposta utiliza as informações exatas do documento para definir a deprescrição e responder diretamente à pergunta, destacando corretamente de forma transparente as limitações do texto original quanto às especificidades para a população idosa."
+    },
+    {
+      "id": "q06",
+      "tipo": "sinonimo",
+      "resposta": "- **Resposta:** Em pacientes com demência, recomenda-se o uso de **escalas observacionais**, como a **PAINAD**, para avaliar dor, especialmente quando há déficit cognitivo.  \n- **Fonte:** *Documento 1 - Controle de sintomas: dor em cuidados paliativos*  \n- **Limitação:** Os documentos disponíveis citam a **PAINAD** como exemplo de escala observacional, mas **não listam outras escalas específicas** para avaliação de dor em demência além dessa.",
+      "recusou": false,
+      "docs_contexto": [
+        "doc1",
+        "doc3",
+        "doc2"
+      ],
+      "faithfulness": 5,
+      "relevancy": 5,
+      "justificativa": "A resposta utiliza perfeitamente a informação do contexto sobre a escala PAINAD para déficits cognitivos e responde diretamente à pergunta, apontando corretamente a limitação de outras fontes."
+    },
+    {
+      "id": "q07",
+      "tipo": "termo-exato",
+      "resposta": "- **Resposta:** A ferramenta **OncPal** serve para **identificar medicamentos potencialmente inapropriados** em cuidados paliativos (ex.: alguns esquemas profiláticos como anticoagulantes preventivos, anti-hipertensivos, estatinas, bisfosfonatos, vitaminas e inibidores de bomba de prótons), apoiando a revisão farmacoterapêutica e a deprescrição quando necessário.  \n- **Fonte:** *Documento 1 - Deprescrição e farmacoterapia em cuidados paliativos*  \n- **Limitação:** Os documentos não detalham como a OncPal é aplicada passo a passo (ex.: quais critérios específicos ou pontuações) nem listam todos os medicamentos cobertos, além dos exemplos citados.",
+      "recusou": false,
+      "docs_contexto": [
+        "doc5",
+        "doc1",
+        "doc2"
+      ],
+      "faithfulness": 5,
+      "relevancy": 5,
+      "justificativa": "A resposta é totalmente fiel ao contexto, extraindo com precisão a função da ferramenta OncPal do Documento 1, e responde diretamente à pergunta formulada de maneira clara e completa."
+    },
+    {
+      "id": "q08",
+      "tipo": "parafrase",
+      "resposta": "- **Resposta:** Para dar uma notícia ruim ao paciente e à família, utilize o protocolo **SPIKES**, organizando a conversa em etapas: **(1) Setting**: preparar um ambiente privativo e sentar-se demonstrando disponibilidade; **(2) Perception**: avaliar quanto o paciente já sabe perguntando, por exemplo, o que ele imagina que o exame mostrou; **(3) Invitation**: obter consentimento para fornecer as informações; **(4) Knowledge**: transmitir a informação de forma acessível e aos poucos, sem “inundar” o paciente; **(5) Emotions**: acolher reações emocionais com empatia e validar sentimentos; **(6) Strategy**: estabelecer um plano terapêutico conjunto. Em **geriatria**, considerar possível **declínio cognitivo** na compreensão do prognóstico e **respeitar a autonomia do idoso**, mesmo com presença familiar, usando comunicação clara e empática para fortalecer o vínculo e favorecer adesão ao tratamento proposto.  \n- **Fonte:** Documento 1 - Comunicação em cuidados paliativos: protocolo SPIKES:  \n- **Limitação:** Os documentos não detalham palavras/roteiros específicos para cada tipo de notícia ruim, nem orientam como conduzir discordâncias entre paciente e família além de recomendações gerais de respeito à autonomia, empatia e construção de plano conjunto.",
+      "recusou": false,
+      "docs_contexto": [
+        "doc2",
+        "doc1",
+        "doc4"
+      ],
+      "faithfulness": 5,
+      "relevancy": 5,
+      "justificativa": "A resposta é perfeitamente fiel ao detalhar as etapas do protocolo SPIKES exatamente como descritas no Documento 1, respondendo de forma direta e completa à pergunta sobre a comunicação de más notícias."
+    },
+    {
+      "id": "q09",
+      "tipo": "parafrase",
+      "resposta": "- Resposta: Você deve realizar **mudança de decúbito a cada 2 horas** para o idoso que não sai da cama, com atenção especial às **proeminências ósseas** (sacro, calcâneos e trocanteres).  \n- Fonte: **Documento 2 - Prevenção de lesões por pressão: Escala de Braden e medidas preventivas**  \n- Limitação: Os documentos não especificam ajustes desse intervalo conforme a pontuação da Escala de Braden, condições clínicas associadas ou tolerância do paciente.",
+      "recusou": false,
+      "docs_contexto": [
+        "doc2",
+        "doc3",
+        "doc1"
+      ],
+      "faithfulness": 5,
+      "relevancy": 5,
+      "justificativa": "A resposta utiliza perfeitamente a informação do Documento 2 para fornecer o intervalo exato de 2 horas solicitado pela pergunta."
+    },
+    {
+      "id": "q10",
+      "tipo": "fora-do-escopo",
+      "resposta": "- Resposta: Não encontrei informações suficientes nos documentos disponíveis para responder a esta pergunta.  \n- Fonte: (nenhuma informação relevante nos documentos fornecidos)  \n- Limitação: Os documentos fornecidos tratam de deprescrição/farmacoterapia em cuidados paliativos, controle de sintomas ao final da vida (incluindo sedação paliativa e dispneia), e controle de dor; não trazem orientações de dose de insulina para diabetes tipo 1 em crianças.",
+      "recusou": true,
+      "docs_contexto": [
+        "doc5",
+        "doc4",
+        "doc1"
+      ],
+      "correto": true
+    }
+  ]
+}

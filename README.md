@@ -62,7 +62,27 @@ O golden set ([`data/avaliacao.json`](data/avaliacao.json)) tem 10 casos escolhi
 | Retrieval (vetorial × híbrida) | Hit@1, Hit@3, MRR | só embeddings |
 | Geração (`--julgar`) | faithfulness, relevancy (LLM-as-judge), taxa de recusa correta | chamadas GPT |
 
-**Resultados:** *pendente da primeira execução no ambiente Azure.*
+### Resultados (22/11/2026: 5 documentos, k=3, `text-embedding-3-small` + `gpt-5.4-nano`)
+
+| Retrieval | Vetorial | Híbrida |
+|---|---|---|
+| Hit@1 | 1,00 | 0,89 |
+| Hit@3 | 1,00 | 1,00 |
+| MRR | 1,00 | 0,94 |
+
+**Geração (busca híbrida).** As mesmas respostas foram avaliadas por dois juízes: as respostas foram geradas uma vez e reaproveitadas com `--rejulgar`, para que só o juiz variasse.
+
+| Geração | Juiz `gpt-5.4-nano` (mesmo modelo) | Juiz `gemini-3.1-pro-preview` (outra família) |
+|---|---|---|
+| Faithfulness média | 5,0 / 5 | 5,0 / 5 |
+| Relevancy média | 5,0 / 5 | 5,0 / 5 |
+| Recusa fora do escopo | 1 / 1 | 1 / 1 |
+
+**Análise:**
+- **q09 (paráfrase):** a híbrida colocou o documento errado em 1º. A pergunta ("mudar a posição", "não sai da cama") não tem palavras em comum com o documento ("mudança de decúbito"), e a BM25 pontuou um termo genérico ("idoso") em outro documento. Mesmo assim, a geração respondeu corretamente, porque o documento certo estava em 2º. Recuperar k=3 funcionou como rede de segurança.
+- **q06 ("demência"):** os dois modos acertaram, e o modelo respondeu em vez de recusar. A falha registrada em maio era, provavelmente, de **geração** (recusa do gpt-4o), e não de retrieval. A hipótese de que um juiz mais rigoroso penalizaria a resposta não se confirmou: "demência" vem da pergunta, e o que a resposta afirma (PAINAD para déficit cognitivo) está no documento.
+- **Juízes:** dois juízes independentes, de famílias e capacidades diferentes, concordaram em 9/9 casos. Isso reduz a chance de o 5,0 ser fruto de viés de autoavaliação.
+- **Interpretação:** com 5 documentos há **efeito teto**, tanto no retrieval (a diferença entre os modos, 1 caso em 9, está dentro do ruído) quanto na geração (toda resposta cabe em um único documento). Os números são uma linha de base, e **não** uma prova de ausência de alucinação. Os brutos estão em [`resultados/`](resultados/).
 
 > Com só 5 documentos, Hit@3 é pouco informativo (até o acaso acerta com frequência). **Hit@1 e MRR** são os números que importam até o corpus crescer.
 
@@ -80,7 +100,9 @@ python -m paligeri.setup_search verificar     # schema + nº de docs (leitura)
 python -m paligeri.setup_search sinonimos     # aplica synonym map
 python -m paligeri.indexer                    # indexa o corpus padrão
 python -m paligeri.rag                        # modo interativo
-python -m paligeri.eval [--julgar]            # avaliação
+python -m paligeri.eval [--julgar]            # avaliação (juiz = gerador)
+python -m paligeri.eval --julgar --juiz gemini   # juiz de outra família
+python -m paligeri.eval --rejulgar resultados/<arquivo>.json --juiz gemini  # troca só o juiz
 ```
 
 Para ingerir novos documentos, coloque o arquivo em `data/raw/` (fora do Git por direitos autorais) e rode:
@@ -95,7 +117,8 @@ python -m paligeri.indexer --file data/corpus_ancp.json
 - Corpus pequeno (5 documentos): as métricas ainda têm baixo poder estatístico.
 - O modelo de geração é de raciocínio (`gpt-5.4-nano`), que não aceita `temperature=0`: a resposta pode variar um pouco entre execuções. A groundedness depende do prompt e é medida pelo `eval.py`. O código também aceita modelos clássicos (`AZURE_OPENAI_REASONING=false`).
 - Autenticação por chave. Em produção, o ideal é Managed Identity + Key Vault.
-- O LLM-as-judge usa o mesmo modelo que gera as respostas (um modelo *nano*). Isso pode introduzir viés de autoavaliação, e as notas devem ser lidas como indicativas. Um juiz de maior capacidade é o próximo passo natural.
+- O golden set ainda não tem **casos armadilha** para a geração, como "dose de morfina para dor intensa": o doc1 cita morfina sem dose, e o doc4 traz uma dose, mas para dispneia. Esses casos testam a regra "não interpolar entre documentos" e são o próximo passo da avaliação.
+- O juiz externo (`gemini-3.1-pro-preview`) é uma versão *preview*. O nome do juiz fica registrado em cada resultado, para que mudanças de juiz sejam rastreáveis.
 - A extração de PDF é feita por página. Converter para Markdown antes preserva melhor a estrutura.
 
 ## 7. Próximos passos
